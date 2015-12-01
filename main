@@ -1,0 +1,50 @@
+#-*- coding:gb18030 -*-
+#http://bbs.aicai.com/thread-597961-1-1.html
+import xlrd
+def isGreen(num):
+    if(0.89<=num and num<=0.86):
+        return True
+def isBrown(num):
+    if(0.96<=num and num<=0.99):
+        return True
+def isWhite(num):
+    if(0.9<=num and num<=0.95):
+        return True
+data = xlrd.open_workbook('b.xls')
+table = data.sheets()[0]
+nrows = table.nrows
+ncols = table.ncols
+#table.row_values(3)
+print "row="+str(nrows)
+print "col="+str(ncols)
+table.cell(4,4).value
+for i in range(5 ,nrows-1 ):
+      table.row_values(i)
+list = []
+for rownum in range(5,nrows-1):
+    row = table.row_values(rownum)
+    if row:
+         app={}
+         app['zhu'] =row[11]
+         app['ping'] = row[12]
+         app['ke'] = row[13]
+         app['peifu'] =round( row[14]/100,4)
+         list.append(app)
+if((isWhite(list[0]['zhu'])and isWhite(list[0]['ping']) and isWhite(list[0]['ke']))or
+   (isGreen(list[0]['zhu'])and isWhite(list[0]['ping']) and isWhite(list[0]['ke']))or
+   (isWhite(list[0]['zhu'])and isGreen(list[0]['ping']) and isWhite(list[0]['ke']))or
+   (isWhite(list[0]['zhu'])and isWhite(list[0]['ping']) and isGreen(list[0]['ke']))or
+   (isGreen(list[0]['zhu'])and isGreen(list[0]['ping']) and isWhite(list[0]['ke']))or
+   (isWhite(list[0]['zhu'])and isGreen(list[0]['ping']) and isGreen(list[0]['ke']))or
+   (isGreen(list[0]['zhu'])and isWhite(list[0]['ping']) and isGreen(list[0]['ke']))or
+    (isGreen(list[0]['zhu'])and isGreen(list[0]['ping']) and isGreen(list[0]['ke']))or
+    (isBrown(list[0]['zhu'])and isWhite(list[0]['ping']) and isWhite(list[0]['ke']))or
+   (isWhite(list[0]['zhu'])and isBrown(list[0]['ping']) and isWhite(list[0]['ke']))or
+   (isWhite(list[0]['zhu'])and isWhite(list[0]['ping']) and isBrown(list[0]['ke']))or
+   (isBrown(list[0]['zhu'])and isBrown(list[0]['ping']) and isWhite(list[0]['ke']))or
+   (isWhite(list[0]['zhu'])and isBrown(list[0]['ping']) and isBrown(list[0]['ke']))or
+   (isBrown(list[0]['zhu'])and isWhite(list[0]['ping']) and isBrown(list[0]['ke']))or
+    (isBrown(list[0]['zhu'])and isBrown(list[0]['ping']) and isBrown(list[0]['ke']))
+   ):
+    print 'd'
+
