@@ -1,50 +1,147 @@
-#-*- coding:gb18030 -*-
+# coding: utf-8
+#pip install xltd
+#pip install xlwt-future
 #http://bbs.aicai.com/thread-597961-1-1.html
-import xlrd
-def isGreen(num):
-    if(0.89<=num and num<=0.86):
-        return True
-def isBrown(num):
-    if(0.96<=num and num<=0.99):
-        return True
-def isWhite(num):
-    if(0.9<=num and num<=0.95):
-        return True
-data = xlrd.open_workbook('b.xls')
-table = data.sheets()[0]
-nrows = table.nrows
-ncols = table.ncols
-#table.row_values(3)
-print "row="+str(nrows)
-print "col="+str(ncols)
-table.cell(4,4).value
-for i in range(5 ,nrows-1 ):
-      table.row_values(i)
-list = []
-for rownum in range(5,nrows-1):
-    row = table.row_values(rownum)
-    if row:
-         app={}
-         app['zhu'] =row[11]
-         app['ping'] = row[12]
-         app['ke'] = row[13]
-         app['peifu'] =round( row[14]/100,4)
-         list.append(app)
-if((isWhite(list[0]['zhu'])and isWhite(list[0]['ping']) and isWhite(list[0]['ke']))or
-   (isGreen(list[0]['zhu'])and isWhite(list[0]['ping']) and isWhite(list[0]['ke']))or
-   (isWhite(list[0]['zhu'])and isGreen(list[0]['ping']) and isWhite(list[0]['ke']))or
-   (isWhite(list[0]['zhu'])and isWhite(list[0]['ping']) and isGreen(list[0]['ke']))or
-   (isGreen(list[0]['zhu'])and isGreen(list[0]['ping']) and isWhite(list[0]['ke']))or
-   (isWhite(list[0]['zhu'])and isGreen(list[0]['ping']) and isGreen(list[0]['ke']))or
-   (isGreen(list[0]['zhu'])and isWhite(list[0]['ping']) and isGreen(list[0]['ke']))or
-    (isGreen(list[0]['zhu'])and isGreen(list[0]['ping']) and isGreen(list[0]['ke']))or
-    (isBrown(list[0]['zhu'])and isWhite(list[0]['ping']) and isWhite(list[0]['ke']))or
-   (isWhite(list[0]['zhu'])and isBrown(list[0]['ping']) and isWhite(list[0]['ke']))or
-   (isWhite(list[0]['zhu'])and isWhite(list[0]['ping']) and isBrown(list[0]['ke']))or
-   (isBrown(list[0]['zhu'])and isBrown(list[0]['ping']) and isWhite(list[0]['ke']))or
-   (isWhite(list[0]['zhu'])and isBrown(list[0]['ping']) and isBrown(list[0]['ke']))or
-   (isBrown(list[0]['zhu'])and isWhite(list[0]['ping']) and isBrown(list[0]['ke']))or
-    (isBrown(list[0]['zhu'])and isBrown(list[0]['ping']) and isBrown(list[0]['ke']))
-   ):
-    print 'd'
 
+import xlrd
+import xlwt
+import random
+if __name__ == "__main__":
+  threeAndOne = 0
+  threeAndZero =0
+  oneAndZero = 0
+  mainThree = 0
+  firstThree =0
+  secondThree =0
+  mainOne = 0
+  firstOne =0
+  secondOne =0
+  mainZero = 0
+  firstZero =0
+  secondZero =0
+  #染色
+  def isRed(num):
+      if(num>=1):
+          return True 
+  def isBrown(num):
+      if(0.96<=num and num<=0.99):
+          return True
+  def isWhite(num):
+      if(0.9<=num and num<=0.95):
+          return True
+  def isBlue(num):
+      if(0.86<=num and num<=0.89):
+          return True
+  def isGreen(num):
+      if(num<=0.85):
+          return True
+  #求出舍弃之不符合的行后，距离赔付率最近的还有最远的两个的index
+  def nearest(a,b,c,target):
+      disa = abs(a-target)
+      disb = abs(b-target)
+      disc = abs(c-target)
+      if( disa==0 and  disb==0):
+          return [0,0]
+      elif(disa==0 and disc==0):
+          return [1,1]
+      elif(disb==0 and  disc==0):
+          return [3,3]
+      dic = [(disa,3),(disb,1),(disc,0)]
+      if(disa!=disb and disa!=disc and disb!=disc):
+          dic = sorted(dic, key=lambda x:x[0],reverse=True)
+          return [dic[0][1],dic[1][1]]
+      if(disa==disb):
+          if(disa<disc):
+              return [0,random.randrange(1,4,2)]
+          elif(disa>disc):
+              threeOrOne = random.randrange(1,4,2)
+              return [threeOrOne,4-threeOrOne]
+      elif(disb==disc):
+          if(disb<disa):
+              return [3,random.randrange(0,2)]
+          elif(disb>disa):
+              oneOrZero = random.randrange(0,2)
+              return [oneOrZero,1-oneOrZero]
+      elif(disa==disc):
+          if(disa<disb):
+              return [1,random.randrange(0,4,3)]
+          elif(disa>disb):
+              zeroOrThree = random.randrange(0,4,3)
+              return [zeroOrThree,3-zeroOrThree]
+  data = xlrd.open_workbook("新浪爱彩(www.aicai.com)_指数数据_2016-2017_比勒菲尔VS桑德豪森.xls")
+  table = data.sheets()[0]
+  nrows = table.nrows
+  ncols = table.ncols
+  for i in range(5 ,nrows-1 ):
+        table.row_values(i)
+  list = []
+  #从第五行开始整行读取
+  for rownum in range(5,nrows-1):
+      row = table.row_values(rownum)
+      if row:
+          app={}
+          app['zhu'] =row[11]
+          app['ping'] = row[12]
+          app['ke'] = row[13]
+          app['s'] = None
+          app['c'] = None
+          app['peifu'] =round( row[14]/100,4)
+          #如果是出现只有蓝色，或者只有灰色那么就舍弃
+          if(((isWhite(app['zhu']) or isBlue(app['zhu']))and 
+            (isWhite(app['ping'])or isBlue(app['ping']))and 
+            (isWhite(app['ke'])or isBlue(app['ke']))) or
+            ((isWhite(app['zhu']) or isBrown(app['zhu']))and 
+            (isWhite(app['ping'])or isBrown(app['ping']))and 
+            (isWhite(app['ke'])or isBrown(app['ke'])))
+            ):
+              continue
+          
+          if(app['zhu']>app['peifu']):
+              app['zhu']=app['peifu']
+          if(app['ping']>app['peifu']):
+              app['ping']=app['peifu']
+          if(app['ke']>app['peifu']):
+              app['ke']=app['peifu']
+          appSC = nearest(app['zhu'],app['ping'],app['ke'],app['peifu'])
+          app['s']= appSC[0]
+          app['c']= appSC[1]  
+          #统计结果
+          if(appSC[0]==3 and appSC[1]==3):
+              mainThree+=1
+          elif(appSC[0]==3 and appSC[1]==1):
+              threeAndOne+=1
+              firstThree+=1
+              secondOne+=1
+          elif(appSC[0]==3 and appSC[1]==0):
+              threeAndZero+=1
+              firstThree+=1
+              secondZero+=1
+          elif(appSC[0]==1 and appSC[1]==3):
+              threeAndOne+=1
+              firstOne+=1
+              secondThree+=1
+          elif(appSC[0]==1 and appSC[1]==1):
+              mainOne+=1
+          elif(appSC[0]==1 and appSC[1]==0):
+              oneAndZero+=1
+              firstOne+=1
+              secondZero+=1
+          elif(appSC[0]==0 and appSC[1]==3):
+              threeAndZero+=1
+              firstZero+=1
+              secondThree+=1
+          elif(appSC[0]==0 and appSC[1]==1):
+              oneAndZero+=1
+              firstZero+=1
+              secondOne+=1
+          elif(appSC[0]==0 and appSC[1]==0):
+              mainZero+=1
+          list.append(app)
+          print row[0],app
+          print "3   1   0"
+  print mainThree,mainOne,mainZero
+  print firstThree,firstOne,firstZero
+  print secondThree,secondOne,secondZero
+  print "31:"+str(threeAndOne)
+  print "30:"+str(threeAndZero)
+  print "03:"+str(threeAndZero)
